@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,20 +5,53 @@
 #include "BPFunctionLibrary.generated.h"
 
 /**
- * 
+ * The Camera function library.
  */
 UCLASS()
 class SUMMERGAMESPROJECT_API UBPFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-public:
-	UFUNCTION(BlueprintCallable, meta=(WorldContext = "WorldContextObject"))
-	static void GetCharacters(const UObject* WorldContextObject, TArray<AActor*>& actors);
 
-	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContextObject"))
-	static FVector GetPlayerAverageLocation(const UObject* WorldContextObject);
+public:
+	/*
+	 * Set actors for camera to fit into view.
+	 */
+	UFUNCTION(BlueprintCallable)
+	static void SetTrackingTargets(TArray<AActor*> actors);
+
+	/*
+	 * Point and adjust camera FOV to (hopefully) fit targets within view.
+	 */
+	UFUNCTION(BlueprintCallable)
+	static void TrackTargets(
+		UCameraComponent* camera,
+		float padding = 100,
+		float min_fov = 30, 
+		float max_fov = 170
+	);
+
+private:
+	static TArray<AActor*> tracking_targets;
+
+	/*
+	 * Gets bounds of current targets (sets min, max).
+	 */
+	static void GetActorBounds(FVector& min, FVector& max);
+
+	/*
+	 * Get center of bounds for camera to face.
+	 */
+	static FVector GetTargetCenterLocation();
 	
-	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContextObject"))
-	static float GetCameraFOV(const UObject* WorldContextObject, UCameraComponent* camera);
+	/*
+	 * Get camera Field Of View.
+	 */
+	static float GetCameraFOV(
+		FMinimalViewInfo view_info,
+		FVector center_location,
+		float padding,
+		float min_fov, 
+		float max_fov
+	); 
 
 };
