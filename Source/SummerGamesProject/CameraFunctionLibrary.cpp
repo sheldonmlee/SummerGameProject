@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BPFunctionLibrary.h"
+#include "CameraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
@@ -10,9 +10,9 @@
 float radToDeg(float rad);
 void swap(float& a, float& b);
 
-TArray<AActor*> UBPFunctionLibrary::tracking_targets = TArray<AActor*>();
+TArray<AActor*> UCameraFunctionLibrary::tracking_targets = TArray<AActor*>();
 
-void UBPFunctionLibrary::SetTrackingTargets(TArray<AActor*> actors)
+void UCameraFunctionLibrary::SetTrackingTargets(TArray<AActor*> actors)
 {
 	tracking_targets.Empty();
 	for (int i = 0; i < actors.Max(); i++) {
@@ -21,7 +21,7 @@ void UBPFunctionLibrary::SetTrackingTargets(TArray<AActor*> actors)
 	return;
 }
 
-void UBPFunctionLibrary::TrackTargets(
+void UCameraFunctionLibrary::TrackTargets(
 	UCameraComponent* camera,
 	float padding,
 	float min_fov,
@@ -46,7 +46,7 @@ void UBPFunctionLibrary::TrackTargets(
 	return;
 }
 
-void UBPFunctionLibrary::GetActorBounds(FVector& min, FVector& max)
+void UCameraFunctionLibrary::GetActorBounds(FVector& min, FVector& max)
 {
 	min = tracking_targets[0]->GetActorLocation();
 	max = tracking_targets[0]->GetActorLocation();
@@ -66,14 +66,14 @@ void UBPFunctionLibrary::GetActorBounds(FVector& min, FVector& max)
 	}
 }
 
-FVector UBPFunctionLibrary::GetTargetCenterLocation()
+FVector UCameraFunctionLibrary::GetTargetCenterLocation()
 {
 	FVector min, max;
 	GetActorBounds(min, max);
 	return (min + max) / 2;
 }
 
-float UBPFunctionLibrary::GetCameraFOV(
+float UCameraFunctionLibrary::GetCameraFOV(
 	FMinimalViewInfo view_info,
 	FVector center_location,
 	float padding,

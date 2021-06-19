@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "BPFunctionLibrary.generated.h"
+#include "CameraFunctionLibrary.generated.h"
 
 /**
  * The Camera function library.
  */
 UCLASS()
-class SUMMERGAMESPROJECT_API UBPFunctionLibrary : public UBlueprintFunctionLibrary
+class SUMMERGAMESPROJECT_API UCameraFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
