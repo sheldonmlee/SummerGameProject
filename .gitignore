@@ -4,6 +4,7 @@ Intermediate
 Saved
 .vscode
 .vs
+.ignore
 *.VC.db
 *.opensdf
 *.opendb
@@ -12,6 +13,7 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
+*.code-workspace
 Construction_VOL1
 Construction_VOL2
 GT_Free2020
