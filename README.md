@@ -14,7 +14,8 @@ development with C++ under the ``Workloads`` tab.
 
 ![vs_installation_1](img/vs_installation_1.png)
 
-As well as a version of the .NET Framework SDK greater than 4.6.
+As well as a version of the .NET Framework SDK greater than 4.6 under the
+``Individual Components`` tab.
 
 ![vs_installation_2](img/vs_installation_2.png)
 
