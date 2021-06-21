@@ -4,7 +4,7 @@ A game project made in Unreal.
 ## Compilation / Opening the project for the first time
 
 At the minimum, you may need to install the 
-[Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/),
+[Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
 or the full 
 [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
 (with the IDE) to be able to compile the project.
