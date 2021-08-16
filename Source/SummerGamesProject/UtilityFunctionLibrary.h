@@ -16,4 +16,7 @@ class SUMMERGAMESPROJECT_API UUtilityFunctionLibrary : public UBlueprintFunction
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static int modulo(int a, int b);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static TArray<FText> intToTextArray(TArray<int32> arr);
 };
