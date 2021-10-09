@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "CameraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
@@ -10,44 +9,60 @@
 float radToDeg(float rad);
 void swap(float& a, float& b);
 
+// Init private class variables;
 TArray<AActor*> UCameraFunctionLibrary::tracking_targets = TArray<AActor*>();
+TSubclassOf<AActor> UCameraFunctionLibrary::tracking_class = ACharacter::StaticClass();
 
-void UCameraFunctionLibrary::SetTrackingTargets(TArray<AActor*> actors)
+float UCameraFunctionLibrary::t_fov = 0;
+FRotator UCameraFunctionLibrary::t_rotation(0, 0, 0);
+
+// Begin Public functions
+void UCameraFunctionLibrary::SetTrackingTargets(TSubclassOf<AActor> subclass)
 {
-	tracking_targets.Empty();
-	for (int i = 0; i < actors.Max(); i++) {
-		tracking_targets.Add(actors[i]);
-	}
+	tracking_class = subclass;
 	return;
 }
 
 void UCameraFunctionLibrary::TrackTargets(
+	const UObject* WorldContextObject,
 	UCameraComponent* camera,
+	float delta_seconds,
 	float padding,
 	float min_fov,
 	float max_fov
 )
 {
 	if (!camera) return;
-	if (tracking_targets.Max() == 0) return;
+	static float t_from_update = -1;
 
-	FMinimalViewInfo view_info;
-	FVector center_point;
-		
 	// Set camera view_info.
+	FMinimalViewInfo view_info;
 	camera->GetCameraView(1.f, view_info);
-	// Get center point of actors that are being tracked.
-	center_point = GetTargetCenterLocation();
 
-	// Rotate camera.
-	camera->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(view_info.Location, center_point));
-	// Set zoom / Field Of View of camera.
-	camera->SetFieldOfView(GetCameraFOV(view_info, center_point, padding, min_fov, max_fov));
+	if (t_from_update < 0 || t_from_update > 1.f/10.f) { 
+		UpdateCameraTargetRotationFOV(WorldContextObject, view_info, padding, min_fov, max_fov);
+		t_from_update = 0;
+	}
+	// Calculate rotation_step
+	FRotator rotation_step(0,0,0);
+	GetRotationStep(view_info, rotation_step, delta_seconds);
+	
+	// Calculate fov step
+	float fov_step = 0;
+	GetFOVStep(view_info, fov_step, delta_seconds);
+
+	camera->SetWorldRotation(view_info.Rotation + rotation_step);
+	camera->SetFieldOfView(view_info.FOV + fov_step);
+	
+	t_from_update += delta_seconds;
 	return;
 }
+// End public
 
+// begin Private
 void UCameraFunctionLibrary::GetActorBounds(FVector& min, FVector& max)
 {
+	if (tracking_targets.Max() == 0) return;
 	min = tracking_targets[0]->GetActorLocation();
 	max = tracking_targets[0]->GetActorLocation();
 	for (int i = 1; i < tracking_targets.Num(); i++)
@@ -130,6 +145,61 @@ float UCameraFunctionLibrary::GetCameraFOV(
 	if (fov > max_fov) fov = max_fov;
 
 	return fov;
+}
+
+void UCameraFunctionLibrary::UpdateCameraTargetRotationFOV(
+		const UObject* WorldContextObject,
+		FMinimalViewInfo view_info,
+		float padding,
+		float min_fov, 
+		float max_fov
+)
+{
+	UpdateActors(WorldContextObject);
+	FVector center_point;
+		
+	// Get center point of actors that are being tracked.
+	center_point = GetTargetCenterLocation();
+
+	// Rotate camera.
+	t_rotation = UKismetMathLibrary::FindLookAtRotation(view_info.Location, center_point);
+	// Set zoom / Field Of View of camera.
+	t_fov = GetCameraFOV(view_info, center_point, padding, min_fov, max_fov);
+}
+
+void UCameraFunctionLibrary::GetRotationStep(FMinimalViewInfo view_info, FRotator& rotation_step, float delta_seconds)
+{
+	float dp = t_rotation.Pitch - view_info.Rotation.Pitch;
+	float dy = t_rotation.Yaw - view_info.Rotation.Yaw;
+	
+	float theta = UKismetMathLibrary::DegAsin(dp/dy);
+	
+	float mag = (dp*dp + dy*dy)*delta_seconds;
+	if (mag > 20) mag = 20;
+
+	rotation_step.Pitch = abs(mag*UKismetMathLibrary::DegSin(theta));
+	rotation_step.Yaw = abs(mag*UKismetMathLibrary::DegCos(theta));
+	
+	if (dp < 0) rotation_step.Pitch = -rotation_step.Pitch;
+	if (dy < 0) rotation_step.Yaw = -rotation_step.Yaw;
+}
+
+void UCameraFunctionLibrary::GetFOVStep(FMinimalViewInfo view_info, float& fov_step, float delta_seconds)
+{
+	float dfov = t_fov - view_info.FOV;
+	
+	fov_step = dfov*delta_seconds;
+}
+
+void UCameraFunctionLibrary::UpdateActors(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject) return;
+
+	tracking_targets.Empty();
+
+	UWorld* _world = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	UGameplayStatics::GetAllActorsOfClass(_world, tracking_class, tracking_targets);
+	int length = tracking_targets.Num();
 }
 
 float radToDeg(float rad)

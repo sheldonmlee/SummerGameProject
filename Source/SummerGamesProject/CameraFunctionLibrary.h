@@ -17,14 +17,16 @@ public:
 	 * Set actors for camera to fit into view.
 	 */
 	UFUNCTION(BlueprintCallable)
-	static void SetTrackingTargets(TArray<AActor*> actors);
+	static void SetTrackingTargets(TSubclassOf<AActor> subclass);
 
 	/*
 	 * Point and adjust camera FOV to (hopefully) fit targets within view.
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, meta=(WorldContext = "WorldContextObject"))
 	static void TrackTargets(
+		const UObject* WorldContextObject,
 		UCameraComponent* camera,
+		float delta_seconds,
 		float padding = 100,
 		float min_fov = 30, 
 		float max_fov = 170
@@ -32,6 +34,10 @@ public:
 
 private:
 	static TArray<AActor*> tracking_targets;
+	static TSubclassOf<AActor> tracking_class;
+	
+	static float t_fov;
+	static FRotator t_rotation;
 
 	/*
 	 * Gets bounds of current targets (sets min, max).
@@ -42,7 +48,7 @@ private:
 	 * Get center of bounds for camera to face.
 	 */
 	static FVector GetTargetCenterLocation();
-	
+
 	/*
 	 * Get camera Field Of View.
 	 */
@@ -54,4 +60,23 @@ private:
 		float max_fov
 	); 
 
+	/*
+	 * Update the target camera rotation.
+	 */
+	static void UpdateCameraTargetRotationFOV(
+		const UObject* WorldContextObject,
+		FMinimalViewInfo view_info,
+		float padding,
+		float min_fov, 
+		float max_fov
+	);
+	
+	static void GetRotationStep(FMinimalViewInfo view_info, FRotator& rotation_step, float delta_seconds);
+
+	static void GetFOVStep(FMinimalViewInfo view_info, float& rotation_step, float delta_seconds);
+
+	/*
+	 * Update the list of actors.
+	 */
+	static void UpdateActors(const UObject* WorldContextObject);
 };
