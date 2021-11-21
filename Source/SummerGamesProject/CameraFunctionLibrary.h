@@ -34,7 +34,8 @@ public:
 
 private:
 	static TArray<AActor*> tracking_targets;
-	static TSubclassOf<AActor> tracking_class;
+// To solve the package issue, this line is disabled
+//	static TSubclassOf<AActor> tracking_class;
 	
 	static float t_fov;
 	static FRotator t_rotation;
