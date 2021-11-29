@@ -12,7 +12,7 @@ void swap(float& a, float& b);
 // Init private class variables;
 TArray<AActor*> UCameraFunctionLibrary::tracking_targets = TArray<AActor*>();
 // To solve the package issue, this line is disabled
-//TSubclassOf<AActor> UCameraFunctionLibrary::tracking_class = ACharacter::StaticClass();
+TSubclassOf<AActor> UCameraFunctionLibrary::tracking_class;
 
 float UCameraFunctionLibrary::t_fov = 0;
 FRotator UCameraFunctionLibrary::t_rotation(0, 0, 0);
@@ -20,9 +20,13 @@ FRotator UCameraFunctionLibrary::t_rotation(0, 0, 0);
 // Begin Public functions
 void UCameraFunctionLibrary::SetTrackingTargets(TSubclassOf<AActor> subclass)
 {
-	// To solve the package issue, this line is disabled
-	//tracking_class = subclass;
+	if(subclass==NULL)  tracking_class = ACharacter::StaticClass() ;
+	
+	else tracking_class = subclass;
+	
 	return;
+
+	
 }
 
 void UCameraFunctionLibrary::TrackTargets(
@@ -201,7 +205,7 @@ void UCameraFunctionLibrary::UpdateActors(const UObject* WorldContextObject)
 
 	UWorld* _world = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	//To solve the package problem, the target_class is set to a constant value.
-	UGameplayStatics::GetAllActorsOfClass(_world, ACharacter::StaticClass(), tracking_targets);
+	UGameplayStatics::GetAllActorsOfClass(_world,tracking_class, tracking_targets);
 	int length = tracking_targets.Num();
 }
 
