@@ -1,6 +1,9 @@
 # SummerGameProject
 A game project made in Unreal.
 
+<h1>intro video</h1>
+https://www.youtube.com/watch?v=WaLcAq6FFZc&ab_channel=NeoGenesisStudios
+
 ## Compilation / Opening the project for the first time
 
 At the minimum, you may need to install the 
